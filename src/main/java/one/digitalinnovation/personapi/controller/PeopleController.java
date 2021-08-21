@@ -4,13 +4,18 @@ import one.digitalinnovation.personapi.entity.People;
 import one.digitalinnovation.personapi.repository.PeopleRepository;
 import one.digitalinnovation.personapi.service.PeopleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -34,7 +39,13 @@ public class PeopleController {
     }
 
     @PostMapping
-    public People save(@RequestBody People people) {
-        return peopleService.save(people);
+    public ResponseEntity<People> save(@Valid @RequestBody People people) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(peopleService.save(people));
+    }
+
+    @DeleteMapping("/{peopleId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void remove(@PathVariable Long peopleId) {
+        peopleService.delete(peopleId);
     }
 }
