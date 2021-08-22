@@ -1,5 +1,9 @@
 package one.digitalinnovation.personapi.controller;
 
+import one.digitalinnovation.personapi.assembler.PeopleInputDisassembler;
+import one.digitalinnovation.personapi.assembler.PeopleModelAssembler;
+import one.digitalinnovation.personapi.dto.PeopleDTO;
+import one.digitalinnovation.personapi.dto.input.PeopleInput;
 import one.digitalinnovation.personapi.entity.People;
 import one.digitalinnovation.personapi.repository.PeopleRepository;
 import one.digitalinnovation.personapi.service.PeopleService;
@@ -28,9 +32,15 @@ public class PeopleController {
     @Autowired
     private PeopleService peopleService;
 
+    @Autowired
+    private PeopleModelAssembler peopleModelAssembler;
+
+    @Autowired
+    private PeopleInputDisassembler peopleInputDisassembler;
+
     @GetMapping
-    public List<People> findAll() {
-        return peopleRepository.findAll();
+    public List<PeopleDTO> findAll() {
+        return peopleModelAssembler.toCollectionModel(peopleRepository.findAll());
     }
 
     @GetMapping("/{peopleId}")
@@ -39,8 +49,12 @@ public class PeopleController {
     }
 
     @PostMapping
-    public ResponseEntity<People> save(@Valid @RequestBody People people) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(peopleService.save(people));
+    @ResponseStatus(HttpStatus.CREATED)
+    public PeopleDTO save(@Valid @RequestBody PeopleInput peopleInput) {
+
+        People people = peopleInputDisassembler.toDomainObject(peopleInput);
+
+        return peopleModelAssembler.toModel(peopleService.save(people));
     }
 
     @DeleteMapping("/{peopleId}")

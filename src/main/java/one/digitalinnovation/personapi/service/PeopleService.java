@@ -1,5 +1,6 @@
 package one.digitalinnovation.personapi.service;
 
+import one.digitalinnovation.personapi.entity.City;
 import one.digitalinnovation.personapi.entity.People;
 import one.digitalinnovation.personapi.exception.EntityNotFoundException;
 import one.digitalinnovation.personapi.exception.PeopleNotFoundException;
@@ -16,9 +17,16 @@ public class PeopleService {
     @Autowired
     private PeopleRepository peopleRepository;
 
+    @Autowired
+    private CityService cityService;
+
     @Transactional
     public People save(People people) {
+        City city = cityService.seekOrFail(people.getAddress().getCity().getId());
+
         people.getPhones().forEach(p -> p.setPeople(people));
+
+        people.getAddress().setCity(city);
 
         return peopleRepository.save(people);
     }

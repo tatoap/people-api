@@ -8,13 +8,7 @@ import lombok.EqualsAndHashCode;
 
 import one.digitalinnovation.personapi.enums.PhoneType;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Enumerated;
-import javax.persistence.EnumType;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -33,10 +27,12 @@ public class Phone {
     private Long id;
 
     @NotNull
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PhoneType type;
 
     @NotBlank
+    @Column(nullable = false)
     private String number;
 
     @NotNull

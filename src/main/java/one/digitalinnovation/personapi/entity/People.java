@@ -38,11 +38,11 @@ public class People {
     private Long id;
 
     @NotBlank
-    @Column(name = "first_name")
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
     @NotBlank
-    @Column(name = "last_name")
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
     @Column(name = "cpf", nullable = false, unique = true)
@@ -56,7 +56,7 @@ public class People {
     private List<Phone> phones;
 
     @NotNull
-    @Column(name = "birth_date")
+    @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
     @Valid
