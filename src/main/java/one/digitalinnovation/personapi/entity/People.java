@@ -1,23 +1,9 @@
 package one.digitalinnovation.personapi.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.*;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Column;
-import javax.persistence.OneToMany;
-import javax.persistence.FetchType;
-import javax.persistence.CascadeType;
-import javax.persistence.Embedded;
-
+import javax.persistence.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -38,16 +24,18 @@ public class People {
     private Long id;
 
     @NotBlank
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name")
     private String firstName;
 
     @NotBlank
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "cpf", nullable = false, unique = true)
+    @NotBlank
+    @Column(name = "cpf", unique = true)
     private String cpf;
 
+    @Valid
     @JsonIgnoreProperties("people")
     @OneToMany(mappedBy = "people",
                 fetch = FetchType.LAZY,
@@ -56,7 +44,7 @@ public class People {
     private List<Phone> phones;
 
     @NotNull
-    @Column(name = "birth_date", nullable = false)
+    @Column(name = "birth_date")
     private LocalDate birthDate;
 
     @Valid

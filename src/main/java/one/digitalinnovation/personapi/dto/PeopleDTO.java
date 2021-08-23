@@ -2,8 +2,8 @@ package one.digitalinnovation.personapi.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import one.digitalinnovation.personapi.entity.Address;
 
+import javax.persistence.Column;
 import java.time.LocalDate;
 import java.util.List;
 

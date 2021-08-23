@@ -21,4 +21,6 @@ public class PhoneInput {
     @NotBlank
     private String number;
 
+    private PeopleInput peopleInput;
+
 }

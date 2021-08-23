@@ -16,7 +16,6 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @Entity(name = "phone")
-@AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Phone {
@@ -27,12 +26,10 @@ public class Phone {
     private Long id;
 
     @NotNull
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PhoneType type;
 
     @NotBlank
-    @Column(nullable = false)
     private String number;
 
     @NotNull
