@@ -2,14 +2,16 @@ package one.digitalinnovation.personapi.service;
 
 import one.digitalinnovation.personapi.entity.City;
 import one.digitalinnovation.personapi.entity.People;
-import one.digitalinnovation.personapi.exception.EntityNotFoundException;
+import one.digitalinnovation.personapi.exception.CPFAlreadyIncludeException;
 import one.digitalinnovation.personapi.exception.PeopleNotFoundException;
 import one.digitalinnovation.personapi.repository.PeopleRepository;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PeopleService {
@@ -21,14 +23,33 @@ public class PeopleService {
     private CityService cityService;
 
     @Transactional
-    public People save(People people) {
-        City city = cityService.seekOrFail(people.getAddress().getCity().getId());
+    public People include(People people) {
+        try {
+            City city = cityService.seekOrFail(people.getAddress().getCity().getId());
 
-        people.getPhones().forEach(p -> p.setPeople(people));
+            people.getPhones().forEach(p -> p.setPeople(people));
 
-        people.getAddress().setCity(city);
+            people.getAddress().setCity(city);
 
-        return peopleRepository.save(people);
+            return peopleRepository.save(people);
+        } catch (DataIntegrityViolationException e) {
+            throw new CPFAlreadyIncludeException(people.getCpf());
+        }
+
+    }
+
+    @Transactional
+    public People update(Long peopleId, People people) {
+        People peopleSave = seekOrFail(peopleId);
+
+        peopleSave.getPhones().clear();
+        peopleSave.getPhones().addAll(people.getPhones());
+        //peopleSave.getPhones().forEach(p -> p.setPeople(peopleSave));
+
+        BeanUtils.copyProperties(people, peopleSave, "id", "phones");
+
+        //return peopleRepository.save(peopleSave);
+        return include(peopleSave);
     }
 
     @Transactional
@@ -45,4 +66,5 @@ public class PeopleService {
         return peopleRepository.findById(peopleId)
                 .orElseThrow(() -> new PeopleNotFoundException(peopleId));
     }
+
 }
