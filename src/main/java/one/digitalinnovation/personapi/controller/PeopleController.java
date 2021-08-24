@@ -4,16 +4,23 @@ import one.digitalinnovation.personapi.assembler.PeopleInputDisassembler;
 import one.digitalinnovation.personapi.assembler.PeopleModelAssembler;
 import one.digitalinnovation.personapi.dto.PeopleDTO;
 import one.digitalinnovation.personapi.dto.input.PeopleInput;
-import one.digitalinnovation.personapi.entity.City;
 import one.digitalinnovation.personapi.entity.People;
 import one.digitalinnovation.personapi.exception.BusinessException;
 import one.digitalinnovation.personapi.exception.CityNotFoundException;
 import one.digitalinnovation.personapi.repository.PeopleRepository;
-import one.digitalinnovation.personapi.service.CityService;
 import one.digitalinnovation.personapi.service.PeopleService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -46,7 +53,7 @@ public class PeopleController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PeopleDTO save(@Valid @RequestBody PeopleInput peopleInput) {
+    public PeopleDTO save(@RequestBody @Valid PeopleInput peopleInput) {
         try {
             People people = peopleInputDisassembler.toDomainObject(peopleInput);
 
@@ -54,7 +61,6 @@ public class PeopleController {
         } catch (CityNotFoundException e) {
             throw new BusinessException(e.getMessage(), e);
         }
-
     }
 
     @PutMapping("/{peopleId}")

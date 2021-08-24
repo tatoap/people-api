@@ -2,16 +2,16 @@ package one.digitalinnovation.personapi.entity;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Builder;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
+@Builder
 @Entity(name = "city")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,11 +23,9 @@ public class City {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     @Column(nullable = false)
     private String name;
 
-    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "state_id")
     private State state;

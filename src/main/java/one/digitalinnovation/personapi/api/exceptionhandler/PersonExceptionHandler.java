@@ -1,5 +1,7 @@
 package one.digitalinnovation.personapi.api.exceptionhandler;
 
+import com.fasterxml.jackson.databind.JsonMappingException.Reference;
+import com.fasterxml.jackson.databind.exc.PropertyBindingException;
 import one.digitalinnovation.personapi.exception.BusinessException;
 import one.digitalinnovation.personapi.exception.EntityNotFoundException;
 import org.flywaydb.core.internal.util.ExceptionUtils;
@@ -27,6 +29,11 @@ public class PersonExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final String MSG_INVALID_FIELDS = "One or more fields are invalid, please fill in correctly and try again";
 
+    private static final String MSG_INVALID_REQUEST = "The body of request is invalid, please check syntax errors.";
+
+    private static final String MSG_PROPERTY_NOT_EXISTS = "The property '%s' not exists. Please check "
+            + "the request send and try again.";
+
     private MessageSource messageSource;
 
     @Override
@@ -38,7 +45,23 @@ public class PersonExceptionHandler extends ResponseEntityExceptionHandler {
             return handleNoHandlerFoundException((NoHandlerFoundException) rootCause, headers, status, request);
         }
 
-        return super.handleHttpMessageNotReadable(ex, headers, status, request);
+        if (rootCause instanceof PropertyBindingException) {
+            return handlePropertyBinding((PropertyBindingException) rootCause, headers, status, request);
+        }
+
+        if (rootCause instanceof MethodArgumentNotValidException) {
+            return handleMethodArgumentNotValid((MethodArgumentNotValidException) rootCause, headers,status, request);
+        }
+
+        ProblemType problemType = ProblemType.ININTELIGIBLE_MESSAGE;
+
+        String details = MSG_INVALID_REQUEST;
+
+        Problem problem = createProblemBuilder(status, problemType, details)
+                .userMessage(details)
+                .build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
     }
 
     @Override
@@ -57,6 +80,21 @@ public class PersonExceptionHandler extends ResponseEntityExceptionHandler {
 
         Problem problem = createProblemBuilder(status, problemType, detail)
                 .userMessage(detail)
+                .build();
+
+        return handleExceptionInternal(ex, problem, headers, status, request);
+    }
+
+    private ResponseEntity<Object> handlePropertyBinding(PropertyBindingException ex, HttpHeaders headers,
+                           HttpStatus status, WebRequest request) {
+        ProblemType problemType = ProblemType.ININTELIGIBLE_MESSAGE;
+
+        String path = joinPath(ex.getPath());
+
+        String details = String.format(MSG_PROPERTY_NOT_EXISTS, path);
+
+        Problem problem = createProblemBuilder(status, problemType, details)
+                .userMessage(details)
                 .build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
@@ -133,5 +171,11 @@ public class PersonExceptionHandler extends ResponseEntityExceptionHandler {
                 .build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
+    }
+
+    private String joinPath(List<Reference> reference) {
+        return reference.stream()
+                .map(ref -> ref.getFieldName())
+                .collect(Collectors.joining("."));
     }
 }

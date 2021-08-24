@@ -1,5 +1,6 @@
 package one.digitalinnovation.personapi.service;
 
+import lombok.AllArgsConstructor;
 import one.digitalinnovation.personapi.entity.City;
 import one.digitalinnovation.personapi.entity.People;
 import one.digitalinnovation.personapi.exception.CPFAlreadyIncludeException;
@@ -24,32 +25,44 @@ public class PeopleService {
 
     @Transactional
     public People include(People people) {
-        try {
-            City city = cityService.seekOrFail(people.getAddress().getCity().getId());
 
-            people.getPhones().forEach(p -> p.setPeople(people));
-
-            people.getAddress().setCity(city);
-
-            return peopleRepository.save(people);
-        } catch (DataIntegrityViolationException e) {
+        if (seekCPF(people.getCpf()) != null) {
             throw new CPFAlreadyIncludeException(people.getCpf());
         }
+
+        City city = cityService.seekOrFail(people.getAddress().getCity().getId());
+
+        people.getPhones().forEach(p -> p.setPeople(people));
+
+        people.getAddress().setCity(city);
+
+        return peopleRepository.save(people);
 
     }
 
     @Transactional
     public People update(Long peopleId, People people) {
+
         People peopleSave = seekOrFail(peopleId);
+
+        People peopleCheckCPF = seekCPF(people.getCpf());
+
+        if (peopleCheckCPF != null) {
+            System.out.println("Teste " + peopleCheckCPF.getId());
+            if (seekCPF(people.getCpf()) != null && !peopleCheckCPF.getId().equals(peopleId)) {
+                throw new CPFAlreadyIncludeException(people.getCpf());
+            }
+        }
 
         peopleSave.getPhones().clear();
         peopleSave.getPhones().addAll(people.getPhones());
-        //peopleSave.getPhones().forEach(p -> p.setPeople(peopleSave));
+        peopleSave.getPhones().forEach(p -> p.setPeople(peopleSave));
 
         BeanUtils.copyProperties(people, peopleSave, "id", "phones");
 
-        //return peopleRepository.save(peopleSave);
-        return include(peopleSave);
+        System.out.println("UPDATE " + people.getFirstName());
+
+        return peopleRepository.save(peopleSave);
     }
 
     @Transactional
@@ -65,6 +78,10 @@ public class PeopleService {
     public People seekOrFail(Long peopleId) {
         return peopleRepository.findById(peopleId)
                 .orElseThrow(() -> new PeopleNotFoundException(peopleId));
+    }
+
+    public People seekCPF(String cpf) {
+        return peopleRepository.findByCPF(cpf);
     }
 
 }

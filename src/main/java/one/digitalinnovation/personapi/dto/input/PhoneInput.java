@@ -1,12 +1,11 @@
 package one.digitalinnovation.personapi.dto.input;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import one.digitalinnovation.personapi.entity.People;
 import one.digitalinnovation.personapi.enums.PhoneType;
 
-import javax.persistence.*;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 

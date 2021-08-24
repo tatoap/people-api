@@ -7,6 +7,7 @@ public enum ProblemType {
 
     ERR_BUSINESS("/err-business", "Business violation rule"),
     INVALID_DATA("/invalid-data", "Invalid data"),
+    ININTELIGIBLE_MESSAGE("/ininteligible-message", "Ininteligible message"),
     REQUEST_NOT_FOUND("/request-not-found", "Request not found");
 
     private String title;
